@@ -1,0 +1,44 @@
+the hedge project 
+============================
+host: raspberry pi 4 model b
+backend: python (will make adjustments if needed)
+
+core features:
+- alarms
+- reminders
+- task and productivity tracking 
+- answer queries (chatgpt key?)
+- cross platfrom intergration
+- internet connectivity 
+- email analysis 
+- compatiable with iphone and iphone tools such as apple reminders
+
+core components on raspberry pi
+---------------------------------------------------------
+|feature                     | tool/library
+---------------------------------------------------------
+|voice wake and listening    | vosk, snowboy + speechrecognition
+|spech output (TTS)          | pyttsx3, gTTS, coqui TTS
+|reminders and tasks         | APScheduler, localdb, json
+|internet access and queries | chatgpt api, requests
+|email access                | imaplip, email
+|phone intergration          | flask and pwa, telegram, pusbullter, ntfy
+---------------------------------------------------------
+*these are subject to change, check the logs, more is also needing to be added 
+
+first milestones : deadline: 24 Jul 2025
+----------------
+1. input: voice to text
+    - microphone input using pyaudio
+    - recognise speedch with vosk (offline) or speechrecognition + google (online)
+
+2. processing: basic commands
+    - using pythong logic repsond to phrases like:
+        * "what time is it?"
+        * "set a reminder"
+        * "tell me a joke"
+
+3. output: text to speech 
+    - use pyttsx3 (offline) or gtts + mpg123 to speak responses 
+
+4. test locally on the pi wiht a microphone and headphones.
