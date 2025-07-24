@@ -52,7 +52,7 @@ def parseCommand():
     return 'None'
     return query #unused command?
 
-# add the rest of the definitions 
+# add the rest of the definitions
 
 
 if __name__ == '__main__':
