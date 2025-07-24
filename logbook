@@ -2,3 +2,16 @@ the hedge project
 ============================
 entry one - 23/7/2025
 looking into how to start this project, different libraries, different models, etc.
+
+entry two - 24/7/2025 - 1716
+* initialised speech engine 
+* installed necessary libraries
+* started to configure chrome path 
+* initilaised wolfram alpha client 
+* current global vars:
+    * speak - the speaking rate of the engine 
+    * parse command - from the microphone then processed with speech rcognition
+
+to do:
+ - add the rest of the definitions 
+ - fix the chrome path 
