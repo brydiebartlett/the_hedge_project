@@ -52,7 +52,38 @@ def parseCommand():
     return 'None'
     return query #unused command?
 
-# add the rest of the definitions
+def serach_wikipedia(query = ''):
+    searchResults = wikipedia.search(query)
+    if not searchResults:
+        print('no wikipedia results sorry :(')
+        return 'no result recieved'
+    try:
+        wikiPage = wikipedia.page(searchResults[0])
+    except wikipedia.DismabiguationEror as error:
+        wikiPage = wikipedia.page(error.options[0])
+    print(wikiPage.title)
+    wikiSummary = str(wikiPage.summary)
+    return wikiSummary
+
+def listOrDict (var):
+    if isinstance(var, list):
+        return var[0]['plaintext']
+    else:
+        return var['plaintext']
+    
+def search_wolframalpha(query = ''):
+    response = wolframClient.query(query)
+
+    if response['@sucess'] == 'false':
+        return 'could not compute'
+    
+    else:
+        result = ''
+        pod0 = response['pod'][0]
+        pod1 = response['pod'][1]
+    
+    if (())
+    
 
 
 if __name__ == '__main__':
