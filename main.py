@@ -12,6 +12,7 @@ import pyjokes
 import requests
 import wolframalpha
 import flask
+import pyaudio
 
 # speech engine intialisation 
 engine = pyttsx3.init()
@@ -82,9 +83,74 @@ def search_wolframalpha(query = ''):
         pod0 = response['pod'][0]
         pod1 = response['pod'][1]
     
-    if (())
+    if (('result') in pod1['@title'].lower()) or (pod1.get('@primary', 'false') == 'true') or ('definition' in pod1['@title'].lower()):
+
+        result = listOrDict(pod1['supod'])
+
+        return result.split('(')[0]
+    
+    else:
+        question = listOrDict(pod1['subpod'])
+
+        return question.split('(')[0]
+    
+        speak('computation failed. querying universal databank')
+        return search_wikipedia(question)    
     
 
 
 if __name__ == '__main__':
+    speak('all sys nominal.')
+
     while True: 
+
+        query = parseCommand().lower().split()
+
+    if query[0] == activationWord:
+        query.pop(0)
+
+    if query[0] == 'say':
+        if 'hello' in query:
+            speak('greetings')
+        else:
+            query.pop(0) # remove say 
+            speech = ''.join(query)
+            speak(speech)
+        
+        # navigation 
+        if query[0] == 'go' and query [1] == 'to':
+            speak('opening...')
+            query = ' '.join(query[2:])
+            webbrowser-get('chrome').open_new(query)
+        
+        # wikipedia
+        if query[0] == 'wikipedia':
+            query = ' '.join(query[1:])
+            speak('querying the universal databank')
+            speak(search_wikipedia(query))
+
+        # wolfram alpha 
+        if query[0] == 'commpute' or query[0] == 'computer':
+            query = ''.join(query[1:])
+            speak('commputing')
+        try:
+            result = search_wolframalpha(query)
+            speak(result)
+        except:
+            speack('unable to connect')
+
+        #notetaking 
+
+        if query[0] == 'log':
+            speak('ready to record')
+            newnote = parseCommand().lower()
+            now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+            with open('note_%d.txt' % now, 'w') as NewFile:
+                newFile.write(newNote)
+            speak('note written')
+
+        if query[0] == 'exit':
+            speak('bye')
+            exit()
+
+
