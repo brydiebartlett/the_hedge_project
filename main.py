@@ -42,29 +42,32 @@ def parseCommand():
     with sr.Microphone() as source:
         listener.pause_thresehold = 2 
         input_speech = listener.listen(source)
+
     try:
         print ('processing speech...')
         query = listener.recognize_google(input_speech, language = 'en_gb')
         print(f'the inputed speech was {query}')
+
     except Exception as exception:
         print('i didnt catch that')
         speak('i didnt catch that')
         print(exception)
-    return 'None'
-    return query #unused command?
+        return 'None'
+    
+    return query
 
-def serach_wikipedia(query = ''):
-    searchResults = wikipedia.search(query)
-    if not searchResults:
-        print('no wikipedia results sorry :(')
-        return 'no result recieved'
+def search_wikipedia(query = ''):
     try:
+        searchResults = wikipedia.search(query)
+        if not searchResults:
+            return 'No result found on Wikipedia.'
         wikiPage = wikipedia.page(searchResults[0])
-    except wikipedia.DismabiguationEror as error:
-        wikiPage = wikipedia.page(error.options[0])
-    print(wikiPage.title)
-    wikiSummary = str(wikiPage.summary)
-    return wikiSummary
+        return wikiPage.summary
+    except wikipedia.DisambiguationError as e:
+        wikiPage = wikipedia.page(e.options[0])
+        return wikiPage.summary
+    except Exception as e:
+        return f"Error: {str(e)}"
 
 def listOrDict (var):
     if isinstance(var, list):
@@ -73,84 +76,74 @@ def listOrDict (var):
         return var['plaintext']
     
 def search_wolframalpha(query = ''):
-    response = wolframClient.query(query)
-
-    if response['@sucess'] == 'false':
-        return 'could not compute'
-    
-    else:
-        result = ''
-        pod0 = response['pod'][0]
+    try:
+        response = wolframClient.query(query)
+        if response['@success'] == 'false':
+            return 'Could not compute.'
+        
         pod1 = response['pod'][1]
-    
-    if (('result') in pod1['@title'].lower()) or (pod1.get('@primary', 'false') == 'true') or ('definition' in pod1['@title'].lower()):
-
-        result = listOrDict(pod1['supod'])
-
-        return result.split('(')[0]
-    
-    else:
-        question = listOrDict(pod1['subpod'])
-
-        return question.split('(')[0]
-    
-        speak('computation failed. querying universal databank')
-        return search_wikipedia(question)    
+        if (('result' in pod1['@title'].lower()) or
+            (pod1.get('@primary', 'false') == 'true') or
+            ('definition' in pod1['@title'].lower())):
+            return listOrDict(pod1['subpod']).split('(')[0]
+        else:
+            return listOrDict(pod1['subpod']).split('(')[0]
+    except Exception as e:
+        return f"Error: {str(e)}"   
     
 
 
 if __name__ == '__main__':
-    speak('all sys nominal.')
+    speak('all systems are nominal. my name is hex and i am your ai assistant')
 
-    while True: 
+    while True:
+        query = parseCommand()
+        if not query:
+            continue
 
-        query = parseCommand().lower().split()
+        query = query.lower().split()
 
-    if query[0] == activationWord:
-        query.pop(0)
+        if query[0] == activationWord:
+            query.pop(0)
 
-    if query[0] == 'say':
-        if 'hello' in query:
-            speak('greetings')
-        else:
-            query.pop(0) # remove say 
-            speech = ''.join(query)
-            speak(speech)
-        
-        # navigation 
-        if query[0] == 'go' and query [1] == 'to':
-            speak('opening...')
-            query = ' '.join(query[2:])
-            webbrowser-get('chrome').open_new(query)
-        
-        # wikipedia
-        if query[0] == 'wikipedia':
-            query = ' '.join(query[1:])
-            speak('querying the universal databank')
-            speak(search_wikipedia(query))
+            # handle "say" command
+            if query and query[0] == 'say':
+                query.pop(0)
+                speech = ' '.join(query)
+                speak(speech)
 
-        # wolfram alpha 
-        if query[0] == 'commpute' or query[0] == 'computer':
-            query = ''.join(query[1:])
-            speak('commputing')
-        try:
-            result = search_wolframalpha(query)
-            speak(result)
-        except:
-            speack('unable to connect')
+            # handle "go to" (web navigation)
+            elif len(query) > 2 and query[0] == 'go' and query[1] == 'to':
+                speak('Opening...')
+                search_term = ' '.join(query[2:])
+                webbrowser.get('chrome').open_new_tab(f'https://{search_term}')
 
-        #notetaking 
+            # wikipedia search
+            elif query[0] == 'wikipedia':
+                query = ' '.join(query[1:])
+                speak('Querying Wikipedia...')
+                result = search_wikipedia(query)
+                speak(result)
 
-        if query[0] == 'log':
-            speak('ready to record')
-            newnote = parseCommand().lower()
-            now = datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
-            with open('note_%d.txt' % now, 'w') as NewFile:
-                newFile.write(newNote)
-            speak('note written')
+            # wolfram Alpha
+            elif query[0] in ['compute', 'calculate']:
+                query = ' '.join(query[1:])
+                speak('Computing...')
+                result = search_wolframalpha(query)
+                speak(result)
 
-        if query[0] == 'exit':
-            speak('bye')
-            exit()
+            # note-taking
+            elif query[0] == 'log':
+                speak('Ready to record.')
+                new_note = parseCommand()
+                if new_note:
+                    now = datetime.datetime.now().strftime('%Y-%m-%d-%H-%M-%S')
+                    filename = f'note_{now}.txt'
+                    with open(filename, 'w') as file:
+                        file.write(new_note)
+                    speak('Note written.')
 
-
+            # exit
+            elif query[0] == 'exit':
+                speak('goodbye.')
+                break
